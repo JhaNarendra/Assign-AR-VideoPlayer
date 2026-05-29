@@ -77,7 +77,7 @@ MonoBehaviour:
       - m_Id: 26cdc1995a5d42a438c39d9e24f015d5
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
       - m_Id: 3cac1aea9ce6811478dde677ea10d015
-        m_Value: ar-videoplayer.web.app/ServerData/Android
+        m_Value: https://ar-videoplayer.web.app/ServerData/Android
       - m_Id: aee3b2664828f2e47b2c72270bf0872c
         m_Value: 'ServerData/[BuildTarget]'
       - m_Id: b0cf2235146635142950bd2bad5d8b6c

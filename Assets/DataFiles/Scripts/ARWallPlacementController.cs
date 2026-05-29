@@ -16,13 +16,43 @@ public class ARWallPlacementController : MonoBehaviour
     [SerializeField] private float wallOffset = 0.015f;
     [SerializeField] private bool hidePlanesAfterPlacement = true;
 
+    [Header("Scanning Requirements")]
+    [Tooltip("Minimum width of the wall in meters to count as scanned and allow placement.")]
+    [SerializeField] private float minPlaneWidth = 0.5f;
+    [Tooltip("Minimum height of the wall in meters to count as scanned and allow placement.")]
+    [SerializeField] private float minPlaneHeight = 0.5f;
+
     private static readonly List<ARRaycastHit> Hits = new();
 
     private GameObject spawnedObject;
     private ARAnchor currentAnchor;
 
+    private bool wallScanned = false;
+
     private void Update()
     {
+        // Check for vertical planes of sufficient size if object hasn't been placed yet
+        if (spawnedObject == null && !wallScanned)
+        {
+            if (planeManager != null)
+            {
+                foreach (ARPlane plane in planeManager.trackables)
+                {
+                    if (plane.alignment == PlaneAlignment.Vertical && 
+                        plane.size.x >= minPlaneWidth && 
+                        plane.size.y >= minPlaneHeight)
+                    {
+                        wallScanned = true;
+                        if (StatusTextController.Instance != null)
+                        {
+                            StatusTextController.Instance.SetStatus("Wall scanned. Press to place the screen");
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         if (!TryGetTapPosition(out Vector2 tapPosition))
             return;
 
@@ -70,9 +100,11 @@ private void TryPlaceObjectOnWall(Vector2 screenPosition)
     if (hitPlane == null)
         return;
 
-    if (hitPlane.alignment != PlaneAlignment.Vertical)
+    if (hitPlane.alignment != PlaneAlignment.Vertical ||
+        hitPlane.size.x < minPlaneWidth ||
+        hitPlane.size.y < minPlaneHeight)
     {
-        Debug.Log("Hit plane is not vertical. Ignoring.");
+        Debug.Log("Hit plane is either not vertical or too small. Ignoring.");
         return;
     }
 
@@ -102,18 +134,27 @@ Quaternion screenRotation = Quaternion.LookRotation(-wallNormal, Vector3.up);
     if (currentAnchor != null)
         Destroy(currentAnchor.gameObject);
 
-    currentAnchor = anchorManager.AttachAnchor(hitPlane, hitPose);
+    // Create the anchor GameObject at the target position/rotation
+    GameObject anchorGO = new GameObject("AR_Screen_Anchor");
+    anchorGO.transform.position = spawnPosition;
+    anchorGO.transform.rotation = screenRotation;
 
-    spawnedObject = Instantiate(objectToPlace, spawnPosition, screenRotation);
+    // Instantiate the screen directly as a child of the anchor to avoid same-frame parenting jumps
+    spawnedObject = Instantiate(objectToPlace, spawnPosition, screenRotation, anchorGO.transform);
 
-    if (currentAnchor != null)
-    {
-        spawnedObject.transform.SetParent(currentAnchor.transform, true);
-    }
+    // Add ARAnchor to the parent to register it with the AR subsystem
+    currentAnchor = anchorGO.AddComponent<ARAnchor>();
 
     if (hidePlanesAfterPlacement)
     {
         HideDetectedPlanes();
+    }
+
+    // Hide the placement reticle
+    ARPlacementReticle reticle = FindFirstObjectByType<ARPlacementReticle>();
+    if (reticle != null)
+    {
+        reticle.OnScreenPlaced();
     }
 }
 

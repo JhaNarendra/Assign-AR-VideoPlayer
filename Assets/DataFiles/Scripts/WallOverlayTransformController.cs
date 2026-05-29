@@ -2,45 +2,56 @@ using UnityEngine;
 
 public class WallOverlayTransformController : MonoBehaviour
 {
-    [Header("Scale")]
+    [Header("Scale Settings")]
     [SerializeField] private float scaleStep = 0.1f;
-    [SerializeField] private float minScale = 0.4f;
-    [SerializeField] private float maxScale = 2.5f;
+    [SerializeField] private float minScaleMultiplier = 0.5f;
+    [SerializeField] private float maxScaleMultiplier = 2.5f;
 
-    [Header("Rotation")]
+    [Header("Rotation Settings")]
     [SerializeField] private float rotationStep = 5f;
 
+    private Vector3 initialScale;
     private float currentScaleMultiplier = 1f;
+
+    private void Awake()
+    {
+        initialScale = transform.localScale;
+    }
 
     public void ScaleUp()
     {
         currentScaleMultiplier = Mathf.Clamp(
             currentScaleMultiplier + scaleStep,
-            minScale,
-            maxScale
+            minScaleMultiplier,
+            maxScaleMultiplier
         );
 
-        transform.localScale *= 1f + scaleStep;
+        ApplyScale();
     }
 
     public void ScaleDown()
     {
         currentScaleMultiplier = Mathf.Clamp(
             currentScaleMultiplier - scaleStep,
-            minScale,
-            maxScale
+            minScaleMultiplier,
+            maxScaleMultiplier
         );
 
-        transform.localScale *= 1f - scaleStep;
+        ApplyScale();
     }
 
     public void RotateLeft()
     {
-        transform.Rotate(Vector3.forward, rotationStep, Space.Self);
+        transform.Rotate(0f, 0f, rotationStep, Space.Self);
     }
 
     public void RotateRight()
     {
-        transform.Rotate(Vector3.forward, -rotationStep, Space.Self);
+        transform.Rotate(0f, 0f, -rotationStep, Space.Self);
+    }
+
+    private void ApplyScale()
+    {
+        transform.localScale = initialScale * currentScaleMultiplier;
     }
 }

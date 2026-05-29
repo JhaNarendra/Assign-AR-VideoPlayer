@@ -169,6 +169,7 @@ MonoBehaviour:
   videoAddresses:
   - video_01
   - video_02
+  - video_03
   loadFirstVideoOnStart: 1
   defaultVideoIndex: 0
 --- !u!114 &-4214887728847664207
@@ -199,6 +200,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WallOverlayTransformController
   scaleStep: 0.1
-  minScale: 0.4
-  maxScale: 2.5
+  minScaleMultiplier: 0.5
+  maxScaleMultiplier: 2.5
   rotationStep: 5

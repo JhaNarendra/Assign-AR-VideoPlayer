@@ -79,6 +79,10 @@ public class VideoAddressablesLoader : MonoBehaviour
         string address = videoAddresses[index];
 
         Debug.Log($"Loading remote video: {address}");
+        if (StatusTextController.Instance != null)
+        {
+            StatusTextController.Instance.SetStatus($"loading video_{index + 1}");
+        }
 
         if (videoPlayer != null)
         {
@@ -94,6 +98,10 @@ public class VideoAddressablesLoader : MonoBehaviour
         if (loadHandle.Status != AsyncOperationStatus.Succeeded)
         {
             Debug.LogError($"Failed to load Addressable video: {address}");
+            if (StatusTextController.Instance != null)
+            {
+                StatusTextController.Instance.SetStatus($"Failed to load video_{index + 1}");
+            }
             isLoading = false;
             yield break;
         }
@@ -116,6 +124,10 @@ public class VideoAddressablesLoader : MonoBehaviour
         videoPlayer.Play();
 
         Debug.Log($"Playing remote video: {address}");
+        if (StatusTextController.Instance != null)
+        {
+            StatusTextController.Instance.SetStatus($"playing video_{index + 1}");
+        }
 
         isLoading = false;
     }
